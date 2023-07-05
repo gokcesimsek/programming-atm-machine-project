@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct User {
+  char name[100];
+  char account_number[100];
+  int balance;
+};
+
+void register_user(char *name, char *account_number, int balance) {
+  // Dosyayı eklemek için açar.
+  FILE *file = fopen("accounts.txt", "a");
+
+  // Kullanıcı bilgilerini dosyaya yazar.
+  fprintf(file, "%s,%s,%d\n", name, account_number, balance);
+
+  // Dosyayı kapatır.
+  fclose(file);
+}
+
+int login(char *account_number, char *password) {
+  // Dosyayı okuma modunda açar.
+  FILE *file = fopen("accounts.txt", "r");
+
+  // Kullanıcı bilgilerini dosyadan okur.
+  char line[100];
+  int balance = -1;
+  while (fgets(line, sizeof(line), file)) {
+    // Satırı isim, hesap numarası ve bakiye olarak ayırır.
+    char *name = strtok(line, ",");
+    char *account_number_temp = strtok(NULL, ",");
+    int balance_temp = atoi(strtok(NULL, ","));
+
+    // Hesap numarası ve parola eşleşirse, kullanıcının bilgilerini döndürür.
+    if (strcmp(account_number_temp, account_number) == 0 && strcmp(password, strtok(NULL, ",")) == 0) {
+      balance = balance_temp;
+      break;
+    }
+  }
+
+  // Dosyayı kapatır.
+  fclose(file);
+
+  return balance;
+}
+
+int main() {
+  struct User users[100]; // Maksimum 100 kullanıcı kaydı için yer ayırıyoruz
+  int num_users = 0; // Kaydedilen kullanıcı sayısı
+
+  // Dosyadan kullanıcı bilgilerini okuyarak users dizisine kaydediyoruz
+  FILE *file = fopen("accounts.txt", "r");
+  if (file) {
+    char line[100];
+    while (fgets(line, sizeof(line), file)) {
+      char *name = strtok(line, ",");
+      char *account_number = strtok(NULL, ",");
+      int balance = atoi(strtok(NULL, ","));
+
+      struct User user;
+      strcpy(user.name, name);
+      strcpy(user.account_number, account_number);
+      user.balance = balance;
+
+      users[num_users] = user;
+      num_users++;
+    }
+
+    fclose(file);
+  }
+
+  // Kullanıcı kayıtlarını kullanarak işlemler yapabilirsiniz
+
+  return 0;
+}
+
